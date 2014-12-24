@@ -67,6 +67,7 @@ public class ParcelableAnalysis {
         boolean parcelsIndex = parcelAnnotation == null || parcelAnnotation.parcelsIndex();
 
         ASTType[] interfaces = parcelASTAnnotation != null ? parcelASTAnnotation.getProperty("implementations", ASTType[].class) : new ASTType[0];
+        ASTType scanLimit = parcelASTAnnotation != null ? parcelASTAnnotation.getProperty("analysisLimit", ASTType.class) : OBJECT_TYPE;
 
         ParcelableDescriptor parcelableDescriptor;
 
@@ -112,7 +113,7 @@ public class ParcelableAnalysis {
                 validator.error("Too many @ParcelConstructor annotated constructors found.").element(astType).build();
             }
 
-            for(ASTType hierarchyLoop = astType; hierarchyLoop != null && !hierarchyLoop.equals(OBJECT_TYPE); hierarchyLoop = hierarchyLoop.getSuperClass()){
+            for(ASTType hierarchyLoop = astType; hierarchyLoop != null && !hierarchyLoop.equals(scanLimit); hierarchyLoop = hierarchyLoop.getSuperClass()){
                 Map<String, List<ASTReference<ASTMethod>>> defaultWriteMethods = new HashMap<String, List<ASTReference<ASTMethod>>>();
                 Map<String, List<ASTReference<ASTMethod>>> defaultReadMethods = new HashMap<String, List<ASTReference<ASTMethod>>>();
                 Map<String, List<ASTReference<ASTField>>> defaultFields = new HashMap<String, List<ASTReference<ASTField>>>();

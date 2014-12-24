@@ -1004,7 +1004,6 @@ public class ParcelableAnalysisTest {
         assertNotNull(analysis.getConstructorPair());
         assertEquals(1, analysis.getFieldPairs().size());
         assertEquals(0, analysis.getMethodPairs().size());
-        assertEquals(converterAst, analysis.getFieldPairs().get(0).getConverter());
         assertFalse(messager.getMessage(), messager.isErrored());
     }
 
@@ -1069,6 +1068,28 @@ public class ParcelableAnalysisTest {
     @Test
     public void testNonMappedGenericsListCollection(){
         errors(NonMappedGenericsListCollection.class);
+    }
+
+    static class BaseNonParcel {
+        String notAnalyzed;
+    }
+
+    @Parcel(analysisLimit = BaseNonParcel.class)
+    static class ParcelExtension extends BaseNonParcel {
+        String value;
+    }
+
+    @Test
+    public void testAnalysisLimit() {
+        ASTType targetAst = astClassFactory.getType(ParcelExtension.class);
+        ParcelableDescriptor analysis = parcelableAnalysis.analyze(targetAst, null);
+
+        assertNull(analysis.getParcelConverterType());
+        assertNotNull(analysis.getConstructorPair());
+        assertEquals(1, analysis.getFieldPairs().size());
+        assertEquals(0, analysis.getMethodPairs().size());
+        assertEquals(0, analysis.getConstructorPair().getWriteReferences().size());
+        assertFalse(messager.getMessage(), messager.isErrored());
     }
 
     private void errors(Class clazz){
